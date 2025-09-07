@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能课程表</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- 顶部导航栏 -->
+        <nav class="top-nav">
+            <div class="nav-content">
+                <div class="logo">
+                    <span class="logo-icon">📚</span>
+                    <span class="logo-text">智能课程表</span>
+                </div>
+                
+                <div class="date-selector">
+                    <button id="prevWeekBtn" class="week-nav-btn" title="上一周">‹</button>
+                    <div class="date-picker-container">
+                        <input type="date" id="datePicker" class="date-input">
+                        <span id="currentDate" class="current-date">2024年9月7日 星期六</span>
+                    </div>
+                    <button id="nextWeekBtn" class="week-nav-btn" title="下一周">›</button>
+                </div>
+                
+                <div class="nav-actions">
+                    <button id="todayBtn" class="action-btn today-btn">今天</button>
+                    <button id="settingsBtn" class="action-btn settings-btn">
+                        <span class="settings-icon">⚙️</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- 周视图导航 -->
+            <div class="week-view" id="weekView">
+                <div class="week-days" id="weekDays">
+                    <!-- 周内日期将动态生成 -->
+                </div>
+            </div>
+
+            <!-- 课程列表 -->
+            <div class="course-container">
+                <div class="time-indicator" id="timeIndicator"></div>
+                <div class="course-list" id="courseList">
+                    <!-- 课程卡片将动态添加 -->
+                </div>
+            </div>
+        </main>
+
+        <!-- 设置面板 -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-overlay" id="settingsOverlay"></div>
+            <div class="settings-content">
+                <div class="settings-header">
+                    <h2>课程数据管理</h2>
+                    <button id="closeSettingsBtn" class="close-btn">×</button>
+                </div>
+                
+                <div class="settings-body">
+                    <div class="data-section">
+                        <h3>导入课程数据</h3>
+                        <div class="import-options">
+                            <button id="importFileBtn" class="import-btn">
+                                <span class="import-icon">📁</span>
+                                选择文件
+                            </button>
+                            <input type="file" id="fileInput" accept=".json,.txt" hidden>
+                            
+                            <button id="pasteDataBtn" class="import-btn">
+                                <span class="import-icon">📋</span>
+                                粘贴数据
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="editor-section" id="editorSection" style="display: none;">
+                        <h3>编辑课程数据</h3>
+                        <div class="editor-container">
+                            <textarea 
+                                id="dataEdit" 
+                                placeholder="请粘贴JSON格式的课程数据..."
+                                spellcheck="false"
+                            ></textarea>
+                            <div class="editor-actions">
+                                <button id="validateBtn" class="btn btn-outline">验证格式</button>
+                                <button id="saveBtn" class="btn btn-primary">保存数据</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="data-info">
+                        <h3>数据格式说明</h3>
+                        <div class="format-example">
+                            <pre id="formatExample"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 课程详情弹窗 -->
+        <div class="course-modal" id="courseModal">
+            <div class="modal-overlay" id="modalOverlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">课程详情</h3>
+                    <button id="closeModalBtn" class="close-btn">×</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- 课程详情内容 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载指示器 -->
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <p>加载课程数据中...</p>
+        </div>
+
+        <!-- 通知消息 -->
+        <div class="notification" id="notification">
+            <div class="notification-content">
+                <span class="notification-icon"></span>
+                <span class="notification-text"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

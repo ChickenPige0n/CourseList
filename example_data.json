@@ -1,0 +1,34 @@
+{
+  "data": {
+    "list": [
+      {
+        "lessonName": "高等数学",
+        "teacherName": "张教授",
+        "classRoomName": "教学楼A101",
+        "startTime": 1725667200000,
+        "endTime": 1725674400000
+      },
+      {
+        "lessonName": "大学英语",
+        "teacherName": "李老师",
+        "classRoomName": "外语楼B202",
+        "startTime": 1725681600000,
+        "endTime": 1725688800000
+      },
+      {
+        "lessonName": "计算机程序设计",
+        "teacherName": "王教授",
+        "classRoomName": "计算机中心C301",
+        "startTime": 1725753600000,
+        "endTime": 1725760800000
+      },
+      {
+        "lessonName": "物理实验",
+        "teacherName": "刘老师",
+        "classRoomName": "物理实验室D401",
+        "startTime": 1725840000000,
+        "endTime": 1725847200000
+      }
+    ]
+  }
+}
