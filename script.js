@@ -1,5 +1,5 @@
 /**
- * 智能课程表应用
+ * SUAT课程表应用
  * 现代化的 Web 课程管理系统
  */
 class SmartCourseApp {
@@ -22,7 +22,6 @@ class SmartCourseApp {
         this.renderWeekView();
         this.renderCurrentDate();
         this.renderCourses();
-        this.startTimeIndicator();
         this.showFormatExample();
     }
     
@@ -41,7 +40,6 @@ class SmartCourseApp {
             
             // 课程列表
             courseList: document.getElementById('courseList'),
-            timeIndicator: document.getElementById('timeIndicator'),
             
             // 设置面板
             settingsPanel: document.getElementById('settingsPanel'),
@@ -161,7 +159,6 @@ class SmartCourseApp {
     }
     
     openDatePicker() {
-        this.elements.datePicker.style.opacity = '1';
         this.elements.datePicker.style.pointerEvents = 'auto';
         
         // 设置日期选择器的值
@@ -235,7 +232,6 @@ class SmartCourseApp {
             this.elements.courseList.appendChild(courseElement);
         });
         
-        this.updateTimeIndicator();
     }
     
     createCourseElement(course, index) {
@@ -505,43 +501,6 @@ class SmartCourseApp {
         document.body.style.overflow = '';
     }
     
-    // 时间指示器
-    startTimeIndicator() {
-        this.updateTimeIndicator();
-        setInterval(() => this.updateTimeIndicator(), 60000); // 每分钟更新一次
-    }
-    
-    updateTimeIndicator() {
-        if (!this.isToday(this.selectedDate)) {
-            this.elements.timeIndicator.classList.remove('show');
-            return;
-        }
-        
-        const now = new Date();
-        const todayCourses = this.getCoursesForDate(this.selectedDate);
-        
-        if (todayCourses.length === 0) {
-            this.elements.timeIndicator.classList.remove('show');
-            return;
-        }
-        
-        // 找到当前时间在课程表中的位置
-        const firstCourse = todayCourses[0];
-        const lastCourse = todayCourses[todayCourses.length - 1];
-        
-        if (now < firstCourse.startTime || now > lastCourse.endTime) {
-            this.elements.timeIndicator.classList.remove('show');
-            return;
-        }
-        
-        // 计算指示器位置
-        const totalMinutes = (lastCourse.endTime - firstCourse.startTime) / (1000 * 60);
-        const currentMinutes = (now - firstCourse.startTime) / (1000 * 60);
-        const percentage = (currentMinutes / totalMinutes) * 100;
-        
-        this.elements.timeIndicator.style.top = `${percentage}%`;
-        this.elements.timeIndicator.classList.add('show');
-    }
     
     // 通知系统
     showNotification(message, type = 'success') {
@@ -793,11 +752,9 @@ class SmartCourseApp {
     
     // 处理窗口大小变化
     handleResize() {
-        // 更新时间指示器位置
-        this.updateTimeIndicator();
         
         // 重新渲染课程列表以适应新尺寸
-        this.renderCourses();
+        //this.renderCourses();
     }
     
     // 防抖函数
@@ -868,7 +825,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.courseApp.showNotification('示例数据已添加', 'success');
     };
     
-    console.log('🎓 智能课程表已启动！');
+    console.log('🎓 SUAT课程表已启动！');
     console.log('💡 使用 addExampleData() 添加示例数据');
     console.log('⌨️  快捷键: T-回到今天, Ctrl+←/→-切换周, ESC-关闭弹窗');
 });
