@@ -294,6 +294,7 @@ body {
     color: var(--text-primary);
     font-weight: 700;
     box-shadow: 3px 3px 0 0 var(--border-color);
+    animation: slideInX 0.5s var(--ease-expo-out) both;
 }
 
 .week-day:hover {
@@ -1470,10 +1471,6 @@ body {
 }
 
 /* 动画增强 - Neo-Brutalism with Staggered X-axis Entry */
-.course-item {
-    /* Already has slideInX animation in previous section */
-    animation: slideInX 0.6s var(--ease-expo-out) backwards;
-}
 
 /* Staggered animation delays for course items */
 .course-item:nth-child(1) { animation-delay: 0.05s; }
@@ -1486,10 +1483,6 @@ body {
 .course-item:nth-child(8) { animation-delay: 0.4s; }
 
 /* Week day staggered x-axis slide in */
-.week-day {
-    animation: slideInX 0.5s var(--ease-expo-out) both;
-}
-
 .week-day:nth-child(1) { animation-delay: 0.05s; }
 .week-day:nth-child(2) { animation-delay: 0.1s; }
 .week-day:nth-child(3) { animation-delay: 0.15s; }
