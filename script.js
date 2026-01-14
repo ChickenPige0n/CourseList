@@ -261,11 +261,11 @@ class SmartCourseApp {
             </div>
             <div class="course-details">
                 <div class="course-detail-item">
-                    <i data-lucide="user" class="detail-icon"></i>
+                    <i data-icon="user" class="detail-icon"></i>
                     <span>${course.teacherName || '未知教师'}</span>
                 </div>
                 <div class="course-detail-item">
-                    <i data-lucide="map-pin" class="detail-icon"></i>
+                    <i data-icon="map-pin" class="detail-icon"></i>
                     <span>${course.classRoomName || '未知地点'}</span>
                 </div>
             </div>
@@ -277,8 +277,8 @@ class SmartCourseApp {
         // Set animation delay
         courseItem.style.animationDelay = `${index * 0.1}s`;
         
-        // Initialize Lucide icons in the course element
-        setTimeout(() => lucide.createIcons({nameAttr: 'data-lucide'}), 0);
+        // Initialize icons in the course element
+        setTimeout(() => initializeIcons(), 0);
         
         return courseItem;
     }
@@ -286,15 +286,15 @@ class SmartCourseApp {
     showEmptyState() {
         this.elements.courseList.innerHTML = `
             <div class="empty-state">
-                <i data-lucide="calendar-x" class="empty-icon"></i>
+                <i data-icon="calendar-x" class="empty-icon"></i>
                 <div class="empty-title">${this.isToday(this.selectedDate) ? '今天没有课程' : '这天没有课程'}</div>
                 <div class="empty-description">
                     ${this.courses.length === 0 ? '点击设置按钮添加课程数据' : '享受你的自由时光吧！'}
                 </div>
             </div>
         `;
-        // Initialize Lucide icons
-        setTimeout(() => lucide.createIcons({nameAttr: 'data-lucide'}), 0);
+        // Initialize icons
+        setTimeout(() => initializeIcons(), 0);
     }
     
     formatTime(date) {
@@ -488,7 +488,7 @@ class SmartCourseApp {
             <div style="display: grid; gap: 16px;">
                 <div class="detail-row">
                     <div class="detail-label">
-                        <i data-lucide="calendar" class="detail-icon-inline"></i>
+                        <i data-icon="calendar" class="detail-icon-inline"></i>
                         <strong>日期时间</strong>
                     </div>
                     <div class="detail-content">
@@ -498,7 +498,7 @@ class SmartCourseApp {
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">
-                        <i data-lucide="user" class="detail-icon-inline"></i>
+                        <i data-icon="user" class="detail-icon-inline"></i>
                         <strong>授课教师</strong>
                     </div>
                     <div class="detail-content">
@@ -507,7 +507,7 @@ class SmartCourseApp {
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">
-                        <i data-lucide="map-pin" class="detail-icon-inline"></i>
+                        <i data-icon="map-pin" class="detail-icon-inline"></i>
                         <strong>上课地点</strong>
                     </div>
                     <div class="detail-content">
@@ -517,7 +517,7 @@ class SmartCourseApp {
                 ${course.description ? `
                 <div class="detail-row">
                     <div class="detail-label">
-                        <i data-lucide="file-text" class="detail-icon-inline"></i>
+                        <i data-icon="file-text" class="detail-icon-inline"></i>
                         <strong>课程描述</strong>
                     </div>
                     <div class="detail-content">
@@ -531,8 +531,8 @@ class SmartCourseApp {
         this.elements.courseModal.classList.add('show');
         document.body.style.overflow = 'hidden';
         
-        // Initialize Lucide icons
-        setTimeout(() => lucide.createIcons({nameAttr: 'data-lucide'}), 0);
+        // Initialize icons
+        setTimeout(() => initializeIcons(), 0);
     }
     
     closeCourseModal() {
@@ -551,13 +551,13 @@ class SmartCourseApp {
         };
         
         this.elements.notification.className = `notification ${type}`;
-        this.elements.notification.querySelector('.notification-icon').innerHTML = `<i data-lucide="${iconMap[type] || iconMap.info}"></i>`;
+        this.elements.notification.querySelector('.notification-icon').innerHTML = `<i data-icon="${iconMap[type] || iconMap.info}"></i>`;
         this.elements.notification.querySelector('.notification-text').textContent = message;
         
         this.elements.notification.classList.add('show');
         
-        // Initialize Lucide icons
-        setTimeout(() => lucide.createIcons({nameAttr: 'data-lucide'}), 0);
+        // Initialize icons
+        setTimeout(() => initializeIcons(), 0);
         
         setTimeout(() => {
             this.elements.notification.classList.remove('show');
