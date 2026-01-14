@@ -238,7 +238,7 @@ class SmartCourseApp {
         const courseItem = document.createElement('div');
         courseItem.className = 'course-item';
         
-        // 添加课程状态类
+        // Add course status class
         const now = new Date();
         const startTime = new Date(course.startTime);
         const endTime = new Date(course.endTime);
@@ -261,21 +261,24 @@ class SmartCourseApp {
             </div>
             <div class="course-details">
                 <div class="course-detail-item">
-                    <span class="detail-icon">👨‍🏫</span>
+                    <i data-lucide="user" class="detail-icon"></i>
                     <span>${course.teacherName || '未知教师'}</span>
                 </div>
                 <div class="course-detail-item">
-                    <span class="detail-icon">📍</span>
+                    <i data-lucide="map-pin" class="detail-icon"></i>
                     <span>${course.classRoomName || '未知地点'}</span>
                 </div>
             </div>
         `;
         
-        // 添加点击事件显示详情
+        // Add click event to show details
         courseItem.addEventListener('click', () => this.showCourseDetail(course));
         
-        // 设置动画延迟
+        // Set animation delay
         courseItem.style.animationDelay = `${index * 0.1}s`;
+        
+        // Initialize Lucide icons in the course element
+        setTimeout(() => lucide.createIcons({nameAttr: 'data-lucide'}), 0);
         
         return courseItem;
     }
@@ -283,13 +286,15 @@ class SmartCourseApp {
     showEmptyState() {
         this.elements.courseList.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">📅</div>
+                <i data-lucide="calendar-x" class="empty-icon"></i>
                 <div class="empty-title">${this.isToday(this.selectedDate) ? '今天没有课程' : '这天没有课程'}</div>
                 <div class="empty-description">
                     ${this.courses.length === 0 ? '点击设置按钮添加课程数据' : '享受你的自由时光吧！'}
                 </div>
             </div>
         `;
+        // Initialize Lucide icons
+        setTimeout(() => lucide.createIcons({nameAttr: 'data-lucide'}), 0);
     }
     
     formatTime(date) {
@@ -317,15 +322,25 @@ class SmartCourseApp {
         try {
             const parsedData = JSON.parse(jsonString);
             
-            // 兼容旧格式
-            if (parsedData.data && parsedData.data.list) {
-                parsedData.data = parsedData.data.list;
+            // Handle different data formats
+            let courseList = [];
+            if (parsedData.data) {
+                if (Array.isArray(parsedData.data)) {
+                    // Format: {data: [...]}
+                    courseList = parsedData.data;
+                } else if (parsedData.data.list && Array.isArray(parsedData.data.list)) {
+                    // Format: {data: {list: [...]}}
+                    courseList = parsedData.data.list;
+                }
+            } else if (Array.isArray(parsedData)) {
+                // Format: [...]
+                courseList = parsedData;
             }
 
-            this.courses = parsedData.data
-                .filter(item => item) // 过滤掉 null 或 undefined 的项
+            this.courses = courseList
+                .filter(item => item) // Filter out null or undefined items
                 .map(item => {
-                    // 假设时间戳是毫秒
+                    // Assume timestamps are in milliseconds
                     return {
                         ...item,
                         startTime: new Date(item.startTime),
@@ -333,7 +348,8 @@ class SmartCourseApp {
                     };
                 });
 
-            localStorage.setItem('smartCourseData', JSON.stringify(parsedData));
+            // Save original format to localStorage
+            localStorage.setItem('smartCourseData', jsonString);
             this.renderWeekView();
             this.renderCourses();
             this.showNotification(`成功加载 ${this.courses.length} 门课程`, 'success');
@@ -460,7 +476,7 @@ class SmartCourseApp {
         }
     }
     
-    // 课程详情弹窗
+    // Course details modal
     showCourseDetail(course) {
         this.elements.modalTitle.textContent = course.lessonName || '课程详情';
         
@@ -470,23 +486,43 @@ class SmartCourseApp {
         
         this.elements.modalBody.innerHTML = `
             <div style="display: grid; gap: 16px;">
-                <div>
-                    <strong>📅 日期时间</strong><br>
-                    ${date}<br>
-                    ${startTime} - ${endTime}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i data-lucide="calendar" class="detail-icon-inline"></i>
+                        <strong>日期时间</strong>
+                    </div>
+                    <div class="detail-content">
+                        ${date}<br>
+                        ${startTime} - ${endTime}
+                    </div>
                 </div>
-                <div>
-                    <strong>👨‍🏫 授课教师</strong><br>
-                    ${course.teacherName || '未知'}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i data-lucide="user" class="detail-icon-inline"></i>
+                        <strong>授课教师</strong>
+                    </div>
+                    <div class="detail-content">
+                        ${course.teacherName || '未知'}
+                    </div>
                 </div>
-                <div>
-                    <strong>📍 上课地点</strong><br>
-                    ${course.classRoomName || '未知'}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i data-lucide="map-pin" class="detail-icon-inline"></i>
+                        <strong>上课地点</strong>
+                    </div>
+                    <div class="detail-content">
+                        ${course.classRoomName || '未知'}
+                    </div>
                 </div>
                 ${course.description ? `
-                <div>
-                    <strong>📝 课程描述</strong><br>
-                    ${course.description}
+                <div class="detail-row">
+                    <div class="detail-label">
+                        <i data-lucide="file-text" class="detail-icon-inline"></i>
+                        <strong>课程描述</strong>
+                    </div>
+                    <div class="detail-content">
+                        ${course.description}
+                    </div>
                 </div>
                 ` : ''}
             </div>
@@ -494,6 +530,9 @@ class SmartCourseApp {
         
         this.elements.courseModal.classList.add('show');
         document.body.style.overflow = 'hidden';
+        
+        // Initialize Lucide icons
+        setTimeout(() => lucide.createIcons({nameAttr: 'data-lucide'}), 0);
     }
     
     closeCourseModal() {
@@ -502,20 +541,23 @@ class SmartCourseApp {
     }
     
     
-    // 通知系统
+    // Notification system
     showNotification(message, type = 'success') {
-        const icons = {
-            success: '✅',
-            error: '❌',
-            warning: '⚠️',
-            info: 'ℹ️'
+        const iconMap = {
+            success: 'check-circle',
+            error: 'x-circle',
+            warning: 'alert-triangle',
+            info: 'info'
         };
         
         this.elements.notification.className = `notification ${type}`;
-        this.elements.notification.querySelector('.notification-icon').textContent = icons[type] || icons.info;
+        this.elements.notification.querySelector('.notification-icon').innerHTML = `<i data-lucide="${iconMap[type] || iconMap.info}"></i>`;
         this.elements.notification.querySelector('.notification-text').textContent = message;
         
         this.elements.notification.classList.add('show');
+        
+        // Initialize Lucide icons
+        setTimeout(() => lucide.createIcons({nameAttr: 'data-lucide'}), 0);
         
         setTimeout(() => {
             this.elements.notification.classList.remove('show');
