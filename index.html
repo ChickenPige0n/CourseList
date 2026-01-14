@@ -6,6 +6,8 @@
     <title>SUAT课程表</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Local Icon Library -->
+    <script src="icons.js"></script>
 </head>
 <body>
     <div id="app">
@@ -13,23 +15,30 @@
         <nav class="top-nav">
             <div class="nav-content">
                 <div class="logo">
-                    <span class="logo-icon">📚</span>
+                    <i data-icon="book-open" class="logo-icon"></i>
                     <span class="logo-text">SUAT课程表</span>
                 </div>
                 
                 <div class="date-selector">
-                    <button id="prevWeekBtn" class="week-nav-btn" title="上一周">‹</button>
+                    <button id="prevWeekBtn" class="week-nav-btn" title="上一周" aria-label="上一周">
+                        <i data-icon="chevron-left"></i>
+                    </button>
                     <div class="date-picker-container">
                         <input type="date" id="datePicker" class="date-input">
                         <span id="currentDate" class="current-date">2024年9月7日 星期六</span>
                     </div>
-                    <button id="nextWeekBtn" class="week-nav-btn" title="下一周">›</button>
+                    <button id="nextWeekBtn" class="week-nav-btn" title="下一周" aria-label="下一周">
+                        <i data-icon="chevron-right"></i>
+                    </button>
                 </div>
                 
                 <div class="nav-actions">
-                    <button id="todayBtn" class="action-btn today-btn">今天</button>
-                    <button id="settingsBtn" class="action-btn settings-btn">
-                        <span class="settings-icon">⚙️</span>
+                    <button id="todayBtn" class="action-btn today-btn">
+                        <i data-icon="calendar-days" class="btn-icon"></i>
+                        <span>今天</span>
+                    </button>
+                    <button id="settingsBtn" class="action-btn settings-btn" aria-label="设置">
+                        <i data-icon="settings" class="settings-icon"></i>
                     </button>
                 </div>
             </div>
@@ -58,7 +67,9 @@
             <div class="settings-content">
                 <div class="settings-header">
                     <h2>课程数据管理</h2>
-                    <button id="closeSettingsBtn" class="close-btn">×</button>
+                    <button id="closeSettingsBtn" class="close-btn" aria-label="关闭">
+                        <i data-icon="x"></i>
+                    </button>
                 </div>
                 
                 <div class="settings-body">
@@ -66,14 +77,14 @@
                         <h3>导入课程数据</h3>
                         <div class="import-options">
                             <button id="importFileBtn" class="import-btn">
-                                <span class="import-icon">📁</span>
-                                选择文件
+                                <i data-icon="folder-open" class="import-icon"></i>
+                                <span>选择文件</span>
                             </button>
                             <input type="file" id="fileInput" accept=".json,.txt" hidden>
                             
                             <button id="pasteDataBtn" class="import-btn">
-                                <span class="import-icon">📋</span>
-                                粘贴数据
+                                <i data-icon="clipboard-paste" class="import-icon"></i>
+                                <span>粘贴数据</span>
                             </button>
                         </div>
                     </div>
@@ -109,7 +120,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 id="modalTitle">课程详情</h3>
-                    <button id="closeModalBtn" class="close-btn">×</button>
+                    <button id="closeModalBtn" class="close-btn" aria-label="关闭">
+                        <i data-icon="x"></i>
+                    </button>
                 </div>
                 <div class="modal-body" id="modalBody">
                     <!-- 课程详情内容 -->
@@ -133,5 +146,11 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // Initialize icons after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeIcons();
+        });
+    </script>
 </body>
 </html>
