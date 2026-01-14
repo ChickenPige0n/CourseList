@@ -315,28 +315,28 @@ class SmartCourseApp {
     
     loadCourseData(jsonString) {
         try {
-            let data = JSON.parse(jsonString);
+            const parsedData = JSON.parse(jsonString);
             
-            // 兼容不同的数据格式
-            if (data && data.data && data.data.list) {
-                data = data.data.list;
-            } else if (data && Array.isArray(data.list)) {
-                data = data.list;
-            } else if (Array.isArray(data)) {
-                // data 已经是数组
-            } else {
-                throw new Error('不支持的数据格式');
+            // 兼容旧格式
+            if (parsedData.data && parsedData.data.list) {
+                parsedData.data = parsedData.data.list;
             }
-            
-            this.courses = data.map(course => ({
-                ...course,
-                startTime: new Date(course.startTime),
-                endTime: new Date(course.endTime)
-            }));
-            
+
+            this.courses = parsedData.data
+                .filter(item => item) // 过滤掉 null 或 undefined 的项
+                .map(item => {
+                    // 假设时间戳是毫秒
+                    return {
+                        ...item,
+                        startTime: new Date(item.startTime),
+                        endTime: new Date(item.endTime)
+                    };
+                });
+
+            localStorage.setItem('smartCourseData', JSON.stringify(parsedData));
+            this.renderWeekView();
             this.renderCourses();
             this.showNotification(`成功加载 ${this.courses.length} 门课程`, 'success');
-            
         } catch (error) {
             console.error('解析课程数据失败:', error);
             this.showNotification('数据格式错误，请检查JSON格式', 'error');
