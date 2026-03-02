@@ -47,6 +47,7 @@ class SmartCourseApp {
             closeSettingsBtn: document.getElementById('closeSettingsBtn'),
             importFileBtn: document.getElementById('importFileBtn'),
             pasteDataBtn: document.getElementById('pasteDataBtn'),
+            clearDataBtn: document.getElementById('clearDataBtn'),
             fileInput: document.getElementById('fileInput'),
             editorSection: document.getElementById('editorSection'),
             dataEdit: document.getElementById('dataEdit'),
@@ -84,7 +85,7 @@ class SmartCourseApp {
         this.elements.fileInput.addEventListener('change', (e) => this.onFileSelected(e));
         this.elements.validateBtn.addEventListener('click', () => this.validateData());
         this.elements.saveBtn.addEventListener('click', () => this.saveData());
-        
+        this.elements.clearDataBtn.addEventListener('click', () => this.clearData());
         // 课程详情弹窗事件
         this.elements.closeModalBtn.addEventListener('click', () => this.closeCourseModal());
         this.elements.modalOverlay.addEventListener('click', () => this.closeCourseModal());
@@ -464,6 +465,17 @@ class SmartCourseApp {
         } catch (error) {
             this.hideLoading();
             this.showNotification('保存失败: ' + error.message, 'error');
+        }
+    }
+
+    clearData() {
+        if (confirm('确定要清除所有课程数据吗？此操作无法撤销。')) {
+            localStorage.removeItem('smartCourseData');
+            this.courses = [];
+            this.renderWeekView();
+            this.renderCourses();
+            this.closeSettings();
+            this.showNotification('课程数据已清除', 'success');
         }
     }
     
