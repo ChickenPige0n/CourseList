@@ -469,14 +469,12 @@ class SmartCourseApp {
     }
 
     clearData() {
-        if (confirm('确定要清除所有课程数据吗？此操作无法撤销。')) {
-            localStorage.removeItem('smartCourseData');
-            this.courses = [];
-            this.renderWeekView();
-            this.renderCourses();
-            this.closeSettings();
-            this.showNotification('课程数据已清除', 'success');
-        }
+        localStorage.removeItem('smartCourseData');
+        this.courses = [];
+        this.renderWeekView();
+        this.renderCourses();
+        this.closeSettings();
+        this.showNotification('课程数据已清除', 'success');
     }
     
     formatJSON(jsonString) {
