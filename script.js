@@ -86,12 +86,17 @@ class SmartCourseApp {
         this.elements.validateBtn.addEventListener('click', () => this.validateData());
         this.elements.saveBtn.addEventListener('click', () => this.saveData());
         this.elements.clearDataBtn.addEventListener('click', () => this.clearData());
+        const exportAllIcsBtn = document.getElementById('exportAllIcsBtn');
+        if (exportAllIcsBtn) {
+            exportAllIcsBtn.addEventListener('click', () => this.exportAllCoursesAsIcs());
+        }
         // 课程详情弹窗事件
         this.elements.closeModalBtn.addEventListener('click', () => this.closeCourseModal());
         this.elements.modalOverlay.addEventListener('click', () => this.closeCourseModal());
-        
-        // 键盘事件
-        document.addEventListener('keydown', (e) => this.onKeyDown(e));
+            this.exportIcsBtn = document.getElementById('exportIcsBtn');
+            if (this.exportIcsBtn) {
+                this.exportIcsBtn.addEventListener('click', () => this.exportCurrentCourseAsIcs());
+            }
         
         // 点击日期选择器外部关闭
         document.addEventListener('click', (e) => {
@@ -322,6 +327,7 @@ class SmartCourseApp {
     loadCourseData(jsonString) {
         try {
             const parsedData = JSON.parse(jsonString);
+            console.log('开始解析课程数据...');
             
             // Handle different data formats
             let courseList = [];
@@ -332,31 +338,56 @@ class SmartCourseApp {
                 } else if (parsedData.data.list && Array.isArray(parsedData.data.list)) {
                     // Format: {data: {list: [...]}}
                     courseList = parsedData.data.list;
+                } else {
+                    throw new Error('数据格式错误: data 应为数组或包含 list 数组的对象');
                 }
             } else if (Array.isArray(parsedData)) {
                 // Format: [...]
                 courseList = parsedData;
+            } else {
+                throw new Error('数据格式错误: 根对象应为数组或包含 data 属性的对象');
             }
 
+            console.log(`找到 ${courseList.length} 门课程，开始验证...`);
+
+            // Validate and map courses
             this.courses = courseList
                 .filter(item => item) // Filter out null or undefined items
                 .map(item => {
-                    // Assume timestamps are in milliseconds
+                    // Validate required fields
+                    if (!item.lessonName || !item.teacherName || !item.classRoomName) {
+                        console.warn('课程数据缺少必要字段:', item);
+                    }
+                    
+                    // Validate timestamps
+                    const startTime = new Date(item.startTime);
+                    const endTime = new Date(item.endTime);
+                    
+                    if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+                        throw new Error(`课程 "${item.lessonName}" 的时间戳无效`);
+                    }
+                    
                     return {
                         ...item,
-                        startTime: new Date(item.startTime),
-                        endTime: new Date(item.endTime)
+                        startTime: startTime,
+                        endTime: endTime
                     };
                 });
 
-            // Save original format to localStorage
-            localStorage.setItem('smartCourseData', jsonString);
+            console.log(`验证完成，成功加载 ${this.courses.length} 门课程`);
+            
+            if (this.courses.length === 0) {
+                console.warn('加载的课程列表为空');
+            }
+            
+            console.log('正在渲染UI...');
             this.renderWeekView();
             this.renderCourses();
-            this.showNotification(`成功加载 ${this.courses.length} 门课程`, 'success');
         } catch (error) {
             console.error('解析课程数据失败:', error);
-            this.showNotification('数据格式错误，请检查JSON格式', 'error');
+            this.showNotification('数据格式错误: ' + error.message, 'error');
+            this.courses = []; // 清空课程列表
+            this.renderCourses(); // 重新渲染空状态
         }
     }
     
@@ -450,20 +481,90 @@ class SmartCourseApp {
         
         try {
             this.showLoading();
+            console.log('开始保存数据...');
             
-            // 验证并保存数据
-            JSON.parse(content); // 验证JSON格式
+            // Step 1: 验证JSON格式
+            let parsedData;
+            try {
+                parsedData = JSON.parse(content);
+                console.log('JSON 格式验证成功');
+            } catch (parseError) {
+                throw new Error('JSON 格式错误: ' + parseError.message);
+            }
+            
+            // Step 2: 验证数据结构
+            let courseList = [];
+            if (parsedData.data) {
+                if (Array.isArray(parsedData.data)) {
+                    courseList = parsedData.data;
+                } else if (parsedData.data.list && Array.isArray(parsedData.data.list)) {
+                    courseList = parsedData.data.list;
+                } else {
+                    throw new Error('数据结构错误: data 应为数组或包含 list 数组的对象');
+                }
+            } else if (Array.isArray(parsedData)) {
+                courseList = parsedData;
+            } else {
+                throw new Error('数据结构错误: 根对象应为数组或包含 data 属性的对象');
+            }
+            
+            // Step 3: 验证课程数据
+            if (courseList.length === 0) {
+                throw new Error('课程列表为空');
+            }
+            
+            console.log(`找到 ${courseList.length} 门课程，验证数据...`);
+            
+            courseList.forEach((item, index) => {
+                if (!item || typeof item !== 'object') {
+                    throw new Error(`第 ${index + 1} 项课程数据无效`);
+                }
+                const requiredFields = ['lessonName', 'teacherName', 'classRoomName', 'startTime', 'endTime'];
+                requiredFields.forEach(field => {
+                    if (!(field in item)) {
+                        throw new Error(`课程 ${index + 1} 缺少必要字段: ${field}`);
+                    }
+                });
+                
+                // 验证时间戳
+                const startTime = new Date(item.startTime);
+                const endTime = new Date(item.endTime);
+                if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+                    throw new Error(`课程 ${index + 1} 的时间戳无效`);
+                }
+            });
+            
+            console.log('数据验证完成，保存到 localStorage...');
+            
+            // Step 4: 保存到localStorage
             localStorage.setItem('smartCourseData', content);
+            const saved = localStorage.getItem('smartCourseData');
+            if (saved === content) {
+                console.log('✓ 数据已成功保存到 localStorage');
+            } else {
+                throw new Error('localStorage 保存失败 - 数据不匹配');
+            }
             
-            // 重新加载数据
+            // Step 5: 清空现有课程并重新加载数据
+            console.log('清空现有课程数据，重新加载...');
+            this.courses = []; // 先清空
             this.loadCourseData(content);
             
+            // 验证数据是否成功加载
+            if (this.courses.length > 0) {
+                console.log(`✓ 成功覆盖数据: ${this.courses.length} 门课程`);
+            } else {
+                console.warn('⚠ 警告: 加载后课程列表为空');
+            }
+            
+            // Step 6: 关闭加载状态和设置面板
             this.hideLoading();
             this.closeSettings();
-            this.showNotification('课程数据保存成功', 'success');
+            this.showNotification(`课程数据已保存并覆盖 (${this.courses.length} 门课程)`, 'success');
             
         } catch (error) {
             this.hideLoading();
+            console.error('✗ 保存失败:', error);
             this.showNotification('保存失败: ' + error.message, 'error');
         }
     }
@@ -486,8 +587,12 @@ class SmartCourseApp {
         }
     }
     
+    // 存储当前选中的课程用于导出
+    currentSelectedCourse = null;
+    
     // Course details modal
     showCourseDetail(course) {
+        this.currentSelectedCourse = course;
         this.elements.modalTitle.textContent = course.lessonName || '课程详情';
         
         const startTime = this.formatTime(course.startTime);
@@ -548,6 +653,190 @@ class SmartCourseApp {
     closeCourseModal() {
         this.elements.courseModal.classList.remove('show');
         document.body.style.overflow = '';
+        this.currentSelectedCourse = null;
+    }
+    
+    // ICS导出功能
+    generateIcsContent(course) {
+        // 生成唯一ID
+        const courseId = `${course.lessonName}-${course.startTime}@suat-courselist`;
+        const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        
+        // 格式化时间为ICS格式 (本地时间，无时区标记)
+        const formatIcsTime = (date) => {
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            const seconds = String(d.getSeconds()).padStart(2, '0');
+            // 使用本地时间格式，不加Z
+            return `${year}${month}${day}T${hours}${minutes}${seconds}`;
+        };
+        
+        const startTime = formatIcsTime(course.startTime);
+        const endTime = formatIcsTime(course.endTime);
+        
+        // 处理描述文本，转义特殊字符
+        const escapeIcsText = (text) => {
+            if (!text) return '';
+            return text
+                .replace(/\\/g, '\\\\')
+                .replace(/,/g, '\\,')
+                .replace(/;/g, '\\;')
+                .replace(/\n/g, '\\n');
+        };
+        
+        const summary = escapeIcsText(course.lessonName);
+        const location = escapeIcsText(course.classRoomName);
+        const description = escapeIcsText(`授课教师: ${course.teacherName}${course.description ? '\n' + course.description : ''}`);
+        
+        // 构建ICS文件内容
+        const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//SUAT Course List//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:SUAT课程表
+X-WR-TIMEZONE:Asia/Shanghai
+BEGIN:VEVENT
+UID:${courseId}
+DTSTART:${startTime}
+DTEND:${endTime}
+DTSTAMP:${timestamp}
+CREATED:${timestamp}
+DESCRIPTION:${description}
+LOCATION:${location}
+SUMMARY:${summary}
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR`;
+        
+        return icsContent;
+    }
+    
+    // 导出当前显示的课程为ICS
+    exportCurrentCourseAsIcs() {
+        if (!this.currentSelectedCourse) {
+            this.showNotification('没有选中的课程', 'warning');
+            return;
+        }
+        
+        const course = this.currentSelectedCourse;
+        const icsContent = this.generateIcsContent(course);
+        
+        // 创建Blob对象
+        const blob = new Blob([icsContent], { type: 'text/calendar; charset=utf-8' });
+        
+        // 创建下载链接
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        
+        // 文件名：课程名-日期.ics
+        const dateStr = this.formatDate(course.startTime).replace(/\s/g, '-');
+        link.download = `${course.lessonName}-${dateStr}.ics`;
+        
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // 清理URL对象
+        URL.revokeObjectURL(link.href);
+        
+        this.showNotification(`已导出课程: ${course.lessonName}`, 'success');
+        this.closeCourseModal();
+    }
+    
+    // 导出所有课程为ICS日历
+    exportAllCoursesAsIcs() {
+        if (this.courses.length === 0) {
+            this.showNotification('没有课程数据可导出', 'warning');
+            return;
+        }
+        
+        // 生成唯一ID
+        const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        
+        // 格式化时间为ICS格式 (本地时间，无时区标记)
+        const formatIcsTime = (date) => {
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            const seconds = String(d.getSeconds()).padStart(2, '0');
+            // 使用本地时间格式，不加Z
+            return `${year}${month}${day}T${hours}${minutes}${seconds}`;
+        };
+        
+        // 处理转义
+        const escapeIcsText = (text) => {
+            if (!text) return '';
+            return text
+                .replace(/\\/g, '\\\\')
+                .replace(/,/g, '\\,')
+                .replace(/;/g, '\\;')
+                .replace(/\n/g, '\\n');
+        };
+        
+        // 构建ICS文件内容
+        let icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//SUAT Course List//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:SUAT课程表
+X-WR-TIMEZONE:Asia/Shanghai
+`;
+        
+        // 添加所有课程事件
+        this.courses.forEach(course => {
+            const startTime = formatIcsTime(course.startTime);
+            const endTime = formatIcsTime(course.endTime);
+            const courseId = `${course.lessonName}-${course.startTime}@suat-courselist`;
+            const summary = escapeIcsText(course.lessonName);
+            const location = escapeIcsText(course.classRoomName);
+            const description = escapeIcsText(`授课教师: ${course.teacherName}${course.description ? '\n' + course.description : ''}`);
+            
+            icsContent += `BEGIN:VEVENT
+UID:${courseId}
+DTSTART:${startTime}
+DTEND:${endTime}
+DTSTAMP:${timestamp}
+CREATED:${timestamp}
+DESCRIPTION:${description}
+LOCATION:${location}
+SUMMARY:${summary}
+STATUS:CONFIRMED
+END:VEVENT
+`;
+        });
+        
+        icsContent += 'END:VCALENDAR';
+        
+        // 创建Blob对象
+        const blob = new Blob([icsContent], { type: 'text/calendar; charset=utf-8' });
+        
+        // 创建下载链接
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        
+        // 文件名
+        const dateStr = new Date().toISOString().split('T')[0];
+        link.download = `SUAT课程表-${dateStr}.ics`;
+        
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // 清理URL对象
+        URL.revokeObjectURL(link.href);
+        
+        this.showNotification(`已导出 ${this.courses.length} 门课程`, 'success');
     }
     
     
