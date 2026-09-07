@@ -421,6 +421,17 @@ class SmartCourseApp {
         this.elements.fileInput.click();
     }
     
+    // 尝试把 ICS 内容转换为课程 JSON；不是 ICS 时返回 null
+    convertIcsContent(content) {
+        const trimmed = String(content || '').replace(/^\uFEFF/, '');
+        if (typeof IcsImport === 'undefined' || !IcsImport.looksLikeIcs(trimmed)) return null;
+        const res = IcsImport.convertToCoursesJson(trimmed);
+        if (!res.list || res.list.length === 0) {
+            throw new Error('ICS 中没有解析到日程数据(VEVENT)');
+        }
+        return { json: res.json, count: res.list.length, warnings: res.warnings };
+    }
+    
     onFileSelected(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -430,9 +441,25 @@ class SmartCourseApp {
         const reader = new FileReader();
         reader.onload = (e) => {
             this.hideLoading();
-            const content = e.target.result;
-            this.elements.dataEdit.value = this.formatJSON(content);
-            this.showEditor();
+            let content = String(e.target.result || '').replace(/^\uFEFF/, '');
+            
+            // 支持直接选择 .ics 文件
+            let conv = null;
+            try {
+                conv = this.convertIcsContent(content);
+            } catch (err) {
+                this.showNotification('ICS 解析失败: ' + err.message, 'error');
+                return;
+            }
+            
+            if (conv) {
+                this.elements.dataEdit.value = conv.json;
+                this.showEditor();
+                this.showNotification(`ICS 解析成功: ${conv.count} 个日程，点击"保存数据"生效`, 'success');
+            } else {
+                this.elements.dataEdit.value = this.formatJSON(content);
+                this.showEditor();
+            }
         };
         
         reader.onerror = () => {
@@ -445,9 +472,22 @@ class SmartCourseApp {
     }
     
     validateData() {
-        const content = this.elements.dataEdit.value.trim();
+        let content = this.elements.dataEdit.value.trim();
         if (!content) {
             this.showNotification('请输入数据', 'warning');
+            return;
+        }
+        
+        // 支持粘贴 ICS: 先转换为 JSON
+        try {
+            const conv = this.convertIcsContent(content);
+            if (conv) {
+                this.elements.dataEdit.value = conv.json;
+                content = conv.json;
+                this.showNotification(`ICS 解析成功: ${conv.count} 个日程，已转换为 JSON`, 'success');
+            }
+        } catch (icsError) {
+            this.showNotification('ICS 解析失败: ' + icsError.message, 'error');
             return;
         }
         
@@ -473,9 +513,21 @@ class SmartCourseApp {
     }
     
     saveData() {
-        const content = this.elements.dataEdit.value.trim();
+        let content = this.elements.dataEdit.value.trim();
         if (!content) {
             this.showNotification('请输入数据', 'warning');
+            return;
+        }
+        
+        // 支持粘贴/保存 ICS 内容: 先转换为 JSON 再走原有保存流程
+        try {
+            const conv = this.convertIcsContent(content);
+            if (conv) {
+                this.elements.dataEdit.value = conv.json;
+                content = conv.json;
+            }
+        } catch (icsError) {
+            this.showNotification('ICS 解析失败: ' + icsError.message, 'error');
             return;
         }
         
