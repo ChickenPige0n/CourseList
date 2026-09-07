@@ -123,6 +123,9 @@ class SmartCourseApp {
         
         // 移动端特殊处理
         this.setupMobileOptimizations();
+        
+        // 键盘可达性: ESC 关闭面板/弹窗
+        document.addEventListener('keydown', (e) => this.onKeyDown(e));
     }
     
     // 日期操作方法
@@ -1080,7 +1083,8 @@ END:VEVENT
                 const allowScrollElements = [
                     this.elements.courseList,
                     this.elements.dataEdit,
-                    this.elements.settingsBody
+                    this.elements.settingsPanel,
+                    this.elements.courseModal
                 ];
                 
                 if (!allowScrollElements.some(el => el && el.contains(e.target))) {

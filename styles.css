@@ -276,6 +276,48 @@ body {
     box-shadow: var(--shadow-brutal-active);
 }
 
+/* 页脚 */
+.app-footer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    border-top: var(--border-width) solid var(--border-color);
+}
+
+.footer-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 4px 6px;
+    transition: color var(--transition-base);
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+    color: var(--primary-color);
+}
+
+.footer-icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+}
+
+.footer-note {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
 /* 主内容区域 */
 .main-content {
     max-width: 1200px;
@@ -1034,16 +1076,20 @@ body {
     /* 导航栏优化 */
     .nav-content {
         padding: 0 12px;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         height: auto;
         min-height: 80px;
-        gap: 12px;
+        gap: 10px 12px;
         padding-top: 12px;
         padding-bottom: 12px;
+        align-items: center;
     }
     
     .logo {
-        align-self: flex-start;
+        align-self: center;
+        flex: 0 1 auto;
+        min-width: 0;
     }
     
     .logo-text {
@@ -1051,18 +1097,21 @@ body {
     }
     
     .date-selector {
-        width: 100%;
+        order: 2;
+        flex: 1 0 100%;
+        min-width: 0;
         justify-content: center;
         gap: 12px;
-        order: 2;
     }
     
     .nav-actions {
-        align-self: flex-end;
-        position: absolute;
-        top: 12px;
-        right: 12px;
+        position: static;
+        align-self: center;
+        margin-left: auto;
         gap: 6px;
+        max-width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
     
     .week-nav-btn {
@@ -1196,25 +1245,46 @@ body {
         font-size: 14px;
     }
     
-    /* 设置面板优化 */
+    /* 设置面板优化: 手机端改为全屏底部抽屉, 便于内部滚动 */
     .settings-content {
-        width: 95%;
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
         max-width: none;
-        margin: 10px;
-        max-height: 95vh;
+        max-height: none;
+        height: 100%;
+        height: 100dvh;
+        margin: 0;
+        border-radius: 16px 16px 0 0;
+        transform: translateY(100%);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
     }
-    
+
+    .settings-panel.show .settings-content {
+        transform: translateY(0);
+    }
+
     .settings-header {
+        flex: 0 0 auto;
         padding: 16px;
     }
-    
+
     .settings-header h2 {
         font-size: 18px;
     }
-    
+
     .settings-body {
-        padding: 16px;
-        max-height: calc(95vh - 80px);
+        flex: 1 1 auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        height: auto;
+        max-height: none;
+        padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
     }
     
     .settings-body h3 {
@@ -1305,6 +1375,15 @@ body {
     
     .loading-indicator p {
         font-size: 14px;
+    }
+    
+    /* 页脚优化 */
+    .app-footer {
+        padding: 20px 16px 36px;
+    }
+    
+    .footer-links a {
+        font-size: 12px;
     }
 }
 

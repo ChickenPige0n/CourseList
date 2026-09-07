@@ -2,6 +2,7 @@
 
 这是一个 Web 静态页面课程表应用。
 推荐搭配[对应油猴脚本](https://greasyfork.org/zh-CN/scripts/569025-%E6%B7%B1%E5%9C%B3%E7%90%86%E5%B7%A5%E5%A4%A7%E5%AD%A6%E6%95%99%E5%8A%A1%E7%B3%BB%E7%BB%9F-%E8%AF%BE%E8%A1%A8%E5%AF%BC%E5%87%BAics)使用。
+项目源码: <https://github.com/ChickenPige0n/CourseList>
 
 
 ## 导入课程数据
