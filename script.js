@@ -73,6 +73,18 @@ class SmartCourseApp {
         this.elements.prevWeekBtn.addEventListener('click', () => this.navigateWeek(-1));
         this.elements.nextWeekBtn.addEventListener('click', () => this.navigateWeek(1));
         this.elements.todayBtn.addEventListener('click', () => this.goToToday());
+        
+        // 「安装脚本」按钮: 打开 GreasyFork 课表导出脚本页面
+        const installScriptBtn = document.getElementById('installScriptBtn');
+        if (installScriptBtn) {
+            installScriptBtn.addEventListener('click', () => {
+                window.open(
+                    'https://greasyfork.org/zh-CN/scripts/569025-%E6%B7%B1%E5%9C%B3%E7%90%86%E5%B7%A5%E5%A4%A7%E5%AD%A6%E6%95%99%E5%8A%A1%E7%B3%BB%E7%BB%9F-%E8%AF%BE%E8%A1%A8%E5%AF%BC%E5%87%BAics',
+                    '_blank',
+                    'noopener'
+                );
+            });
+        }
         this.elements.currentDate.addEventListener('click', () => this.openDatePicker());
         this.elements.datePicker.addEventListener('change', (e) => this.onDateChange(e));
         

@@ -260,6 +260,22 @@ body {
     box-shadow: var(--shadow-brutal-active);
 }
 
+.install-script-btn {
+    background: var(--candy-pink);
+    color: white;
+    box-shadow: var(--shadow-brutal);
+}
+
+.install-script-btn:hover {
+    transform: translate(-2px, -2px) rotate(-1deg);
+    box-shadow: var(--shadow-brutal-hover);
+}
+
+.install-script-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-brutal-active);
+}
+
 /* 主内容区域 */
 .main-content {
     max-width: 1200px;
