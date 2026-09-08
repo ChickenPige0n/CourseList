@@ -1,0 +1,112 @@
+/* ============================================================================
+   设计令牌
+   精炼编辑风：纸感画布 · 墨色排版 · 单一朱砂强调色 · 发丝线分隔 · 大留白
+   浅色为默认，深色通过 <html data-theme="dark"> 切换。
+   ========================================================================== */
+
+:root {
+    color-scheme: light;
+
+    /* --- 纸张与墨色 ----------------------------------------------------- */
+    --canvas: #f5f3ed;
+    --surface: #fffefb;
+    --surface-2: #efece4;
+    --ink: #16150f;
+    --ink-2: #4b4841;
+    /* 三级文字：对纸底 ≈ 5.2:1，仍满足 AA */
+    --ink-3: #67625a;
+    --line: rgba(22, 21, 15, 0.11);
+    --line-2: rgba(22, 21, 15, 0.24);
+
+    /* 单一强调色：朱砂 */
+    --accent: #b83e29;
+    --accent-ink: #fff9f6;
+    --accent-soft: rgba(184, 62, 41, 0.09);
+
+    /* 语义状态色（只用于状态，不作装饰） */
+    --live: #1c7a4c;
+    --live-soft: rgba(28, 122, 76, 0.1);
+    --soon: #7d510e;
+    --soon-soft: rgba(138, 90, 16, 0.12);
+
+    /* --- 字体族 --------------------------------------------------------- */
+    --font-sans: 'Space Grotesk', 'Inter', system-ui, -apple-system, 'Segoe UI',
+                 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    /* --- 字号阶梯（1rem = 16px） ---------------------------------------- */
+    --text-2xs: 0.6875rem; /* 11px · 微标签 */
+    --text-xs: 0.75rem;    /* 12px · 标签、徽章 */
+    --text-sm: 0.8125rem;  /* 13px · 次要正文、时间轴 */
+    --text-base: 0.875rem; /* 14px · 正文 */
+    --text-md: 0.9375rem;  /* 15px · 强调正文 */
+    --text-lg: 1.0625rem;  /* 17px · 课程标题 */
+    --text-xl: 1.25rem;    /* 20px */
+    --text-2xl: 1.5rem;    /* 24px */
+    --text-3xl: 1.75rem;   /* 28px · 日标题 */
+
+    /* --- 行高与字距 ----------------------------------------------------- */
+    --leading-tight: 1.25;
+    --leading-snug: 1.45;
+    --leading-normal: 1.6;
+    --leading-relaxed: 1.75;
+
+    --tracking-tight: -0.02em;
+    --tracking-snug: -0.01em;
+    --tracking-normal: 0;
+    --tracking-wide: 0.06em;
+    --tracking-wider: 0.12em;
+
+    /* --- 间距节奏 ------------------------------------------------------- */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+
+    /* --- 形状与投影 ----------------------------------------------------- */
+    --wrap: 66rem;
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow-pop: 0 24px 60px -24px rgba(22, 21, 15, 0.4);
+    --shadow-header: 0 12px 24px -20px rgba(22, 21, 15, 0.55);
+
+    /* --- 动效 ----------------------------------------------------------- */
+    --dur-fast: 140ms;
+    --dur: 220ms;
+    --dur-slow: 360ms;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+:root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --canvas: #121210;
+    --surface: #1b1b18;
+    --surface-2: #242420;
+    --ink: #f2efe7;
+    --ink-2: #b5b0a5;
+    --ink-3: #9a9489;
+    --line: rgba(242, 239, 231, 0.14);
+    --line-2: rgba(242, 239, 231, 0.3);
+
+    --accent: #e4674c;
+    --accent-ink: #1a110e;
+    --accent-soft: rgba(228, 103, 76, 0.16);
+
+    --live: #5ec08c;
+    --live-soft: rgba(94, 192, 140, 0.16);
+    --soon: #dda94a;
+    --soon-soft: rgba(221, 169, 74, 0.16);
+
+    --shadow-pop: 0 24px 60px -24px rgba(0, 0, 0, 0.75);
+    --shadow-header: 0 12px 24px -20px rgba(0, 0, 0, 0.85);
+}

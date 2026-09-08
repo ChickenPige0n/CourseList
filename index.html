@@ -1,195 +1,40 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUAT课程表</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Local Icon Library -->
-    <script src="icons.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#121210" media="(prefers-color-scheme: dark)">
+    <meta name="description" content="SUAT 课程表：按周查看每日课程，支持导入教务系统导出的 ICS 课表，并可导出为日历文件。课程数据仅保存在浏览器本地。">
+    <title>SUAT 课程表</title>
+
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+
+    <!-- 在首次绘制前确定主题，避免深色模式闪白 -->
+    <script>
+        (function () {
+            try {
+                var stored = localStorage.getItem('suat-course-theme');
+                var theme = (stored === 'light' || stored === 'dark')
+                    ? stored
+                    : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.dataset.theme = theme;
+            } catch (e) { /* 隐私模式下忽略 */ }
+        })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 字体异步加载：网络不可用时立即回退到系统字体，不阻塞首屏 -->
+    <link rel="stylesheet" media="print" onload="this.media='all'"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+    </noscript>
 </head>
 <body>
-    <div id="app">
-        <!-- 顶部导航栏 -->
-        <nav class="top-nav">
-            <div class="nav-content">
-                <div class="logo">
-                    <i data-icon="book-open" class="logo-icon"></i>
-                    <span class="logo-text">SUAT课程表</span>
-                </div>
-                
-                <div class="date-selector">
-                    <button id="prevWeekBtn" class="week-nav-btn" title="上一周" aria-label="上一周">
-                        <i data-icon="chevron-left"></i>
-                    </button>
-                    <div class="date-picker-container">
-                        <input type="date" id="datePicker" class="date-input">
-                        <span id="currentDate" class="current-date">2024年9月7日 星期六</span>
-                    </div>
-                    <button id="nextWeekBtn" class="week-nav-btn" title="下一周" aria-label="下一周">
-                        <i data-icon="chevron-right"></i>
-                    </button>
-                </div>
-                
-                <div class="nav-actions">
-                    <button id="installScriptBtn" class="action-btn install-script-btn" title="打开 GreasyFork 页面安装「课表导出 ICS」浏览器脚本（需先装 Tampermonkey）">
-                        <i data-icon="download" class="btn-icon"></i>
-                        <span>安装脚本</span>
-                    </button>
-                    <button id="todayBtn" class="action-btn today-btn">
-                        <i data-icon="calendar-days" class="btn-icon"></i>
-                        <span>今天</span>
-                    </button>
-                    <button id="settingsBtn" class="action-btn settings-btn" aria-label="设置">
-                        <i data-icon="settings" class="settings-icon"></i>
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <!-- 主内容区域 -->
-        <main class="main-content">
-            <!-- 周视图导航 -->
-            <div class="week-view" id="weekView">
-                <div class="week-days" id="weekDays">
-                    <!-- 周内日期将动态生成 -->
-                </div>
-            </div>
-
-            <!-- 课程列表 -->
-            <div class="course-container">
-                <div class="course-list" id="courseList">
-                    <!-- 课程卡片将动态添加 -->
-                </div>
-            </div>
-        </main>
-
-        <!-- 页脚 -->
-        <footer class="app-footer">
-            <div class="footer-links">
-                <a href="https://github.com/ChickenPige0n/CourseList" target="_blank" rel="noopener" title="查看项目源码 (GitHub)" aria-label="查看项目源码 (GitHub)">
-                    <i data-icon="github" class="footer-icon" aria-hidden="true"></i>
-                    <span>项目源码: ChickenPige0n/CourseList</span>
-                </a>
-            </div>
-            <p class="footer-note">SUAT课程表 · 课程数据仅保存在浏览器本地</p>
-        </footer>
-
-        <!-- 设置面板 -->
-        <div class="settings-panel" id="settingsPanel">
-            <div class="settings-overlay" id="settingsOverlay"></div>
-            <div class="settings-content">
-                <div class="settings-header">
-                    <h2>课程数据管理</h2>
-                    <button id="closeSettingsBtn" class="close-btn" aria-label="关闭">
-                        <i data-icon="x"></i>
-                    </button>
-                </div>
-                
-                <div class="settings-body">
-                    <div class="data-section">
-                        <h3>导入课程数据</h3>
-                        <div class="import-options">
-                            <button id="importFileBtn" class="import-btn">
-                                <i data-icon="folder-open" class="import-icon"></i>
-                                <span>选择文件</span>
-                            </button>
-                            <input type="file" id="fileInput" accept=".json,.txt,.ics" hidden>
-                            
-                            <button id="pasteDataBtn" class="import-btn">
-                                <i data-icon="clipboard-paste" class="import-icon"></i>
-                                <span>粘贴数据</span>
-                            </button>
-                            <button id="clearDataBtn" class="import-btn">
-                                <i data-icon="folder-open" class="import-icon"></i>
-                                <span>清除数据</span>
-                            </button>
-                        </div>
-                        <p style="font-size: 12px; color: #666; margin-top: 8px;">支持 JSON 或 ICS（.ics）。ICS 可由教务课表页导出的「课表 .ics」文件直接选择导入，也可粘贴 ICS 文本，导入后会自动转换为下方 JSON 格式。</p>
-                    </div>
-                    
-                    <div class="editor-section" id="editorSection" style="display: none;">
-                        <h3>编辑课程数据</h3>
-                        <div class="editor-container">
-                            <textarea 
-                                id="dataEdit" 
-                                placeholder="请粘贴 JSON 或 ICS（.ics）格式的课程数据..."
-                                spellcheck="false"
-                            ></textarea>
-                            <div class="editor-actions">
-                                <button id="validateBtn" class="btn btn-outline">验证格式</button>
-                                <button id="saveBtn" class="btn btn-primary">保存数据</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="data-section">
-                        <h3>导出课程数据</h3>
-                        <div class="import-options">
-                            <button id="exportAllIcsBtn" class="import-btn">
-                                <i data-icon="download" class="import-icon"></i>
-                                <span>导出为日历文件</span>
-                            </button>
-                        </div>
-                        <p style="font-size: 12px; color: #666; margin-top: 8px;">将所有课程导出为ICS文件，可导入到日历应用（如Google日历、Outlook等）</p>
-                    </div>
-                    
-                    <div class="data-info">
-                        <h3>数据格式说明</h3>
-                        <div class="format-example">
-                            <pre id="formatExample"></pre>
-                        </div>
-                        <p style="font-size: 12px; color: #666; margin-top: 8px;">字段映射（从 ICS 自动转换）：<code>SUMMARY</code>→课程名；<code>LOCATION</code>→教室（自动去掉校区前缀）；<code>DESCRIPTION</code> 中的「教师 / 周次 / 节次 / 学分」→详情，其中「教师」填入授课教师。保存时会写回本页 JSON 格式，方便二次编辑。</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 课程详情弹窗 -->
-        <div class="course-modal" id="courseModal">
-            <div class="modal-overlay" id="modalOverlay"></div>
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 id="modalTitle">课程详情</h3>
-                    <button id="closeModalBtn" class="close-btn" aria-label="关闭">
-                        <i data-icon="x"></i>
-                    </button>
-                </div>
-                <div class="modal-body" id="modalBody">
-                    <!-- 课程详情内容 -->
-                </div>
-                <div class="modal-footer">
-                    <button id="exportIcsBtn" class="btn btn-primary">
-                        <i data-icon="download" class="btn-icon"></i>
-                        <span>导出为ICS</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 加载指示器 -->
-        <div class="loading-indicator" id="loadingIndicator">
-            <div class="loading-spinner"></div>
-            <p>加载课程数据中...</p>
-        </div>
-
-        <!-- 通知消息 -->
-        <div class="notification" id="notification">
-            <div class="notification-content">
-                <span class="notification-icon"></span>
-                <span class="notification-text"></span>
-            </div>
-        </div>
-    </div>
-
-    <script src="ics-parser.js"></script>
-    <script src="script.js"></script>
-    <script>
-        // Initialize icons after DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeIcons();
-        });
-    </script>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
