@@ -11,15 +11,19 @@
     "vue"
   ],
   "license": "MIT",
+  "engines": {
+    "node": ">=20.19"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "npm run type-check && vite build",
+    "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "deploy": "npx wrangler deploy"
   },
   "dependencies": {
     "pinia": "^3.0.3",

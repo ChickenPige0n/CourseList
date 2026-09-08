@@ -10,3 +10,6 @@ coverage/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+# Wrangler 本地状态与本地变量
+.wrangler/
+.dev.vars

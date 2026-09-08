@@ -9,20 +9,21 @@
 ## 快速开始
 
 ```bash
-bun install      # 安装依赖（也可用 npm install）
-bun run dev      # 本地开发（Vite，默认 http://localhost:5173）
-bun run build    # 类型检查 + 生产构建，产物在 dist/
-bun run preview  # 预览构建产物
+npm install      # 安装依赖
+npm run dev      # 本地开发（Vite，默认 http://localhost:5173）
+npm run build    # 类型检查 + 生产构建，产物在 dist/
+npm run preview  # 预览构建产物
 ```
 
-其他脚本（bun / npm 通用）：
+其他脚本：
 
 | 命令 | 作用 |
 | --- | --- |
-| `type-check` | `vue-tsc --noEmit` 全量类型检查 |
-| `test` | Vitest 运行全部单元 / 组件测试 |
-| `test:watch` | 监听模式 |
-| `lint` | ESLint（flat config，含 Vue 与 TypeScript 规则） |
+| `npm run type-check` | `vue-tsc --noEmit` 全量类型检查 |
+| `npm test` | Vitest 运行全部单元 / 组件测试 |
+| `npm run test:watch` | 监听模式 |
+| `npm run lint` | ESLint（flat config，含 Vue 与 TypeScript 规则） |
+| `npm run deploy` | 构建并部署到 Cloudflare Workers（需先 `npx wrangler login`） |
 
 ## 功能
 
@@ -116,7 +117,7 @@ src/
 ## 测试
 
 ```bash
-bun run test
+npm test
 ```
 
 覆盖：
@@ -127,7 +128,27 @@ bun run test
 
 ## 部署
 
-`vite.config.ts` 中 `base: './'`，构建产物使用相对路径，可直接放到任意静态托管（含子目录、GitHub Pages）。
+### Cloudflare Workers（当前线上方式）
+
+仓库根目录的 `wrangler.jsonc` 已配置为「纯静态资源」Worker：
+
+| 配置 | 值 |
+| --- | --- |
+| `assets.directory` | `./dist`（Vite 构建产物） |
+| `build.command` | `npm run build`（`wrangler deploy` 前自动执行） |
+| `name` | `suat-course-list`（需与 Cloudflare 项目里的 Worker 名称一致） |
+
+因此 Cloudflare 的 Build 配置只需保持：
+
+- **Build command**：留空（由 `wrangler.jsonc` 的 `build.command` 执行）
+- **Deploy command**：`npx wrangler deploy`
+- **Root directory**：`/`
+
+若项目里的 Worker 名称与 `name` 不同，改 `wrangler.jsonc` 里的 `name` 即可（Workers Builds 也会用项目名覆盖它）。
+
+### 任意静态托管
+
+`vite.config.ts` 中 `base: './'`，构建产物使用相对路径，可直接把 `dist/` 放到任意静态托管（含子目录、GitHub Pages）。
 页面本身不需要服务端；字体走 Google Fonts，网络不可用时自动回退到系统字体。
 
 ## 设计系统

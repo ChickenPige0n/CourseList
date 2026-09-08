@@ -1,0 +1,18 @@
+{
+  // Cloudflare Workers 静态站点：只部署 Vite 构建产物，不含 Worker 脚本
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // 若 Cloudflare 项目里的 Worker 名称与此不同，请改成一致（Workers Builds 会以项目名为准）
+  "name": "suat-course-list",
+
+  "compatibility_date": "2026-01-01",
+
+  "assets": {
+    "directory": "./dist"
+  },
+
+  // Workers Builds 的 Build command 留空时，wrangler 会在 deploy 前执行这里
+  "build": {
+    "command": "npm run build"
+  }
+}
